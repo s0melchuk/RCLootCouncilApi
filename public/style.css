@@ -48,6 +48,30 @@ th, td {
   white-space: nowrap;
 }
 
+th {
+  padding: 0;
+}
+
+.sort-btn {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sort-btn:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.sort-btn.active {
+  color: light-dark(#0a58ca, #6ea8fe);
+}
+
 tbody tr:hover {
   background: rgba(128, 128, 128, 0.08);
 }

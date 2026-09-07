@@ -4,9 +4,10 @@ const clearBtn = document.getElementById("clear");
 const prevBtn = document.getElementById("prev-page");
 const nextBtn = document.getElementById("next-page");
 const pageStatus = document.getElementById("page-status");
+const sortButtons = document.querySelectorAll(".sort-btn");
 
 const PAGE_SIZE = 25;
-const state = { offset: 0, total: 0, filters: {} };
+const state = { offset: 0, total: 0, filters: {}, sort: "awarded_at", order: "desc" };
 
 function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => (
@@ -14,21 +15,39 @@ function escapeHtml(s) {
   ));
 }
 
+function updateSortIndicators() {
+  sortButtons.forEach((btn) => {
+    const isActive = btn.dataset.sort === state.sort;
+    btn.classList.toggle("active", isActive);
+    btn.textContent = btn.textContent.replace(/ [▲▼]$/, "");
+    if (isActive) {
+      btn.textContent += state.order === "asc" ? " ▲" : " ▼";
+    }
+  });
+}
+
 async function loadLoot() {
-  tbody.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
-  const params = { ...state.filters, limit: PAGE_SIZE, offset: state.offset };
+  tbody.innerHTML = '<tr><td colspan="9">Loading…</td></tr>';
+  const params = {
+    ...state.filters,
+    sort: state.sort,
+    order: state.order,
+    limit: PAGE_SIZE,
+    offset: state.offset,
+  };
   const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([, v]) => v || v === 0)));
   const res = await fetch(`/api/loot?${qs}`);
   if (!res.ok) {
-    tbody.innerHTML = `<tr><td colspan="8">Failed to load (${res.status})</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9">Failed to load (${res.status})</td></tr>`;
     return;
   }
   const { results, total } = await res.json();
   state.total = total ?? 0;
   updatePaginationControls();
+  updateSortIndicators();
 
   if (!results.length) {
-    tbody.innerHTML = '<tr><td colspan="8">No results</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9">No results</td></tr>';
     return;
   }
   tbody.innerHTML = results
@@ -42,6 +61,7 @@ async function loadLoot() {
         <td>${escapeHtml(r.winner)}</td>
         <td>${escapeHtml(r.response)}</td>
         <td>${escapeHtml(r.difficulty)}</td>
+        <td>${escapeHtml(r.votes)}</td>
       </tr>`
     )
     .join("");
@@ -77,6 +97,20 @@ prevBtn.addEventListener("click", () => {
 nextBtn.addEventListener("click", () => {
   state.offset += PAGE_SIZE;
   loadLoot();
+});
+
+sortButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const column = btn.dataset.sort;
+    if (state.sort === column) {
+      state.order = state.order === "asc" ? "desc" : "asc";
+    } else {
+      state.sort = column;
+      state.order = "desc";
+    }
+    state.offset = 0;
+    loadLoot();
+  });
 });
 
 loadLoot();
