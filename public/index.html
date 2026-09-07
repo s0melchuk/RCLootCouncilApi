@@ -19,6 +19,21 @@
       <input type="text" name="item" placeholder="Item name contains…" />
       <input type="text" name="difficulty" placeholder="NM/HC" />
       <input type="text" name="slot" placeholder="Slot" />
+      <select name="sort">
+        <option value="awarded_at">Sort: Date</option>
+        <option value="raid">Sort: Raid</option>
+        <option value="boss">Sort: Boss</option>
+        <option value="item_name">Sort: Item</option>
+        <option value="winner">Sort: Winner</option>
+        <option value="response">Sort: Response</option>
+        <option value="difficulty">Sort: Difficulty</option>
+        <option value="slot">Sort: Slot</option>
+        <option value="votes">Sort: Votes</option>
+      </select>
+      <select name="order">
+        <option value="desc">Descending</option>
+        <option value="asc">Ascending</option>
+      </select>
       <button type="submit">Filter</button>
       <button type="button" id="clear">Clear</button>
     </form>
@@ -40,6 +55,12 @@
         <tr><td colspan="8">Loading…</td></tr>
       </tbody>
     </table>
+
+    <div id="pagination">
+      <button type="button" id="prev-page">← Prev</button>
+      <span id="page-status"></span>
+      <button type="button" id="next-page">Next →</button>
+    </div>
   </main>
 
   <script src="/app.js"></script>
