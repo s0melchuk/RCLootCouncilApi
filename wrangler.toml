@@ -8,7 +8,7 @@ pages_build_output_dir = "public"
 [[d1_databases]]
 binding = "DB"
 database_name = "rclootcouncil-db"
-database_id = "REPLACE_ME_AFTER_DB_CREATE"
+database_id = "f855a3a2-0218-4bea-b631-154556acac4f"
 
 # Shared secret the native scanner app must send as the `X-API-Key` header
 # on POST /api/loot. Set the real value with:

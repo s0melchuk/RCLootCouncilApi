@@ -1,8 +1,13 @@
 # RCLootCouncil API
 
+[![CI](https://github.com/s0melchuk/RCLootCouncilApi/actions/workflows/ci.yml/badge.svg)](https://github.com/s0melchuk/RCLootCouncilApi/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 Tracks RCLootCouncil loot results: a static frontend for browsing, an API for
 querying, and an ingest endpoint a (future) native chat-log-scanning app can
 push data to.
+
+Live at: https://rclootcouncil-api.pages.dev
 
 ## Stack
 
@@ -63,3 +68,15 @@ npm run dev
 
 None of this needs a credit card, and Cloudflare doesn't pause or delete idle
 Pages/D1 resources the way some other free tiers do.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup and PR guidelines.
+
+## Security
+
+Found a vulnerability? See [SECURITY.md](SECURITY.md) for how to report it privately.
+
+## License
+
+[GPL-3.0](LICENSE)
