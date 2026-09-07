@@ -1,0 +1,111 @@
+import { badRequest, Env, isValidLootAward, json, LootAwardInput, unauthorized } from "./_utils";
+
+interface PagesContext {
+  request: Request;
+  env: Env;
+}
+
+// GET /api/loot?raid=&player=&item=&from=&to=&limit=&offset=
+export async function onRequestGet(ctx: PagesContext): Promise<Response> {
+  const { request, env } = ctx;
+  const url = new URL(request.url);
+  const { searchParams } = url;
+
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  const raid = searchParams.get("raid");
+  if (raid) {
+    conditions.push("raid = ?");
+    params.push(raid);
+  }
+  const player = searchParams.get("player");
+  if (player) {
+    conditions.push("winner = ?");
+    params.push(player);
+  }
+  const item = searchParams.get("item");
+  if (item) {
+    conditions.push("item_name LIKE ?");
+    params.push(`%${item}%`);
+  }
+  const from = searchParams.get("from");
+  if (from) {
+    conditions.push("awarded_at >= ?");
+    params.push(from);
+  }
+  const to = searchParams.get("to");
+  if (to) {
+    conditions.push("awarded_at <= ?");
+    params.push(to);
+  }
+
+  const limit = Math.min(Number(searchParams.get("limit") ?? 100) || 100, 500);
+  const offset = Number(searchParams.get("offset") ?? 0) || 0;
+
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+  const stmt = env.DB.prepare(
+    `SELECT * FROM loot_awards ${where} ORDER BY awarded_at DESC LIMIT ? OFFSET ?`
+  ).bind(...params, limit, offset);
+
+  const { results } = await stmt.all();
+  return json({ results, limit, offset });
+}
+
+// POST /api/loot
+// Body: a single loot record, or { records: LootAwardInput[] } for bulk import.
+// Requires header: X-API-Key: <INGEST_API_KEY>
+export async function onRequestPost(ctx: PagesContext): Promise<Response> {
+  const { request, env } = ctx;
+
+  const key = request.headers.get("X-API-Key");
+  if (!env.INGEST_API_KEY || key !== env.INGEST_API_KEY) {
+    return unauthorized();
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return badRequest("body must be valid JSON");
+  }
+
+  const records: unknown[] = Array.isArray((body as { records?: unknown[] })?.records)
+    ? (body as { records: unknown[] }).records
+    : [body];
+
+  const validRecords: LootAwardInput[] = [];
+  for (const r of records) {
+    if (!isValidLootAward(r)) {
+      return badRequest(
+        "each record requires string fields: awarded_at, item_name, winner"
+      );
+    }
+    validRecords.push(r);
+  }
+
+  const stmt = env.DB.prepare(
+    `INSERT INTO loot_awards
+       (awarded_at, raid, boss, item_id, item_name, winner, response, votes, note, raw_source)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+
+  const batch = validRecords.map((r) =>
+    stmt.bind(
+      r.awarded_at,
+      r.raid ?? null,
+      r.boss ?? null,
+      r.item_id ?? null,
+      r.item_name,
+      r.winner,
+      r.response ?? null,
+      r.votes ?? null,
+      r.note ?? null,
+      r.raw_source ?? null
+    )
+  );
+
+  await env.DB.batch(batch);
+
+  return json({ inserted: validRecords.length }, 201);
+}

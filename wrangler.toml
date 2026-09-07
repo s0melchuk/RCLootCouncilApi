@@ -1,0 +1,16 @@
+name = "rclootcouncil-api"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "public"
+
+# D1 database binding, available to all /functions/* handlers as `env.DB`.
+# Replace `database_id` with the id printed by `npm run db:create` (or the
+# Cloudflare dashboard) before your first real deploy.
+[[d1_databases]]
+binding = "DB"
+database_name = "rclootcouncil-db"
+database_id = "REPLACE_ME_AFTER_DB_CREATE"
+
+# Shared secret the native scanner app must send as the `X-API-Key` header
+# on POST /api/loot. Set the real value with:
+#   wrangler pages secret put INGEST_API_KEY
+# For local dev only, you can also put a throwaway value in .dev.vars.

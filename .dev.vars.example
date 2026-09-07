@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local `wrangler pages dev` runs (never commit .dev.vars itself).
+INGEST_API_KEY=dev-only-throwaway-key

@@ -1,0 +1,65 @@
+# RCLootCouncil API
+
+Tracks RCLootCouncil loot results: a static frontend for browsing, an API for
+querying, and an ingest endpoint a (future) native chat-log-scanning app can
+push data to.
+
+## Stack
+
+- **Hosting**: Cloudflare Pages (static `public/` + file-based `functions/` API routes)
+- **Database**: Cloudflare D1 (SQLite) — free tier, no inactivity pause/deletion
+- **Auth**: shared API key (`INGEST_API_KEY`) required on `POST /api/loot`
+
+## Layout
+
+```
+public/            static frontend (index.html, style.css, app.js)
+functions/api/     API routes (Pages Functions, file-based routing)
+migrations/        D1 SQL migrations
+wrangler.toml      Pages + D1 binding config
+```
+
+## API
+
+- `GET /api/loot?raid=&player=&item=&from=&to=&limit=&offset=` — list/filter awards
+- `GET /api/stats/:player` — item count + recent awards for one player
+- `POST /api/loot` — insert one record, or `{ "records": [...] }` for bulk.
+  Requires header `X-API-Key: <INGEST_API_KEY>`.
+
+Loot record shape:
+```json
+{
+  "awarded_at": "2026-09-06T21:14:00Z",
+  "raid": "Molten Core",
+  "boss": "Ragnaros",
+  "item_id": 17182,
+  "item_name": "Sulfuras, Hand of Ragnaros",
+  "winner": "Thrallpull",
+  "response": "MS",
+  "votes": 5,
+  "note": null,
+  "raw_source": "<original chat log line, optional>"
+}
+```
+
+## Local dev
+
+```bash
+npm install
+cp .dev.vars.example .dev.vars   # then edit the key
+npm run db:create                # first time only — paste the printed database_id into wrangler.toml
+npm run db:migrate:local
+npm run dev
+```
+
+## Deploying (first-time setup, walked through together)
+
+1. Create a Cloudflare account (free) and authenticate `wrangler`.
+2. `npm run db:create` against the **remote** account, put the real `database_id` in `wrangler.toml`.
+3. `npm run db:migrate:remote` to create the schema on the live D1 database.
+4. `wrangler pages secret put INGEST_API_KEY` to set the real ingest key (never commit it).
+5. `npm run deploy` to publish the Pages project.
+6. Point the native scanner app at `https://<project>.pages.dev/api/loot` with the `X-API-Key` header.
+
+None of this needs a credit card, and Cloudflare doesn't pause or delete idle
+Pages/D1 resources the way some other free tiers do.
