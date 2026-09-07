@@ -37,10 +37,15 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Pinned to match the wrangler devDependency in package.json — otherwise
+          # this action installs its own (older, default) Wrangler version, which
+          # can conflict with @cloudflare/workers-types already installed by `npm ci`.
+          wranglerVersion: "4.129.0"
           command: d1 migrations apply rclootcouncil-db --remote
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.129.0"
           command: pages deploy public --project-name=rclootcouncil-api
