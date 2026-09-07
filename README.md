@@ -69,6 +69,22 @@ npm run dev
 None of this needs a credit card, and Cloudflare doesn't pause or delete idle
 Pages/D1 resources the way some other free tiers do.
 
+## Continuous deployment
+
+Every push to `main` that passes `typecheck` automatically:
+1. Applies any new D1 migrations to the live database (`wrangler d1 migrations apply --remote`)
+2. Deploys `public/` + `functions/` to Cloudflare Pages
+
+This runs in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) via
+[`cloudflare/wrangler-action`](https://github.com/cloudflare/wrangler-action),
+authenticated with two repo secrets:
+
+- `CLOUDFLARE_API_TOKEN` — scoped token with Pages (Edit) and D1 (Edit) permissions
+- `CLOUDFLARE_ACCOUNT_ID` — from the Cloudflare dashboard sidebar
+
+Manual deploys (`npm run deploy` / `npm run db:migrate:remote`) still work
+too, e.g. for local testing before pushing.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup and PR guidelines.
