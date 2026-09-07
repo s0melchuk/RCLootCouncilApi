@@ -34,8 +34,8 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
   }
   const player = searchParams.get("player");
   if (player) {
-    conditions.push("winner = ?");
-    params.push(player);
+    conditions.push("winner LIKE ?");
+    params.push(`%${player}%`);
   }
   const item = searchParams.get("item");
   if (item) {

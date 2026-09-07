@@ -27,10 +27,12 @@ wrangler.toml      Pages + D1 binding config
 ## API
 
 - `GET /api/loot?raid=&player=&item=&from=&to=&difficulty=&slot=&sort=&order=&limit=&offset=` —
-  list/filter awards. `sort` is one of `awarded_at` (default), `raid`, `boss`,
-  `item_name`, `winner`, `response`, `difficulty`, `slot`, `votes`; `order` is
-  `asc` or `desc` (default `desc`). Response includes `total` (count matching
-  the filters, ignoring `limit`/`offset`) for building page controls.
+  list/filter awards. `player` and `item` match as a substring (case-sensitive
+  `LIKE`); the rest match exactly. `sort` is one of `awarded_at` (default),
+  `raid`, `boss`, `item_name`, `winner`, `response`, `difficulty`, `slot`,
+  `votes`; `order` is `asc` or `desc` (default `desc`). Response includes
+  `total` (count matching the filters, ignoring `limit`/`offset`) for
+  building page controls.
 - `GET /api/stats/:player` — class/spec (if known), item count, MS/OS-by-difficulty
   breakdown, slots already received, and recent awards for one player
 - `GET /api/players` — full roster (name, class, spec)
