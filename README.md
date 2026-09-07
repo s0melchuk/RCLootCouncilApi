@@ -26,9 +26,13 @@ wrangler.toml      Pages + D1 binding config
 
 ## API
 
-- `GET /api/loot?raid=&player=&item=&from=&to=&limit=&offset=` — list/filter awards
-- `GET /api/stats/:player` — item count + recent awards for one player
+- `GET /api/loot?raid=&player=&item=&from=&to=&difficulty=&slot=&limit=&offset=` — list/filter awards
+- `GET /api/stats/:player` — class/spec (if known), item count, MS/OS-by-difficulty
+  breakdown, slots already received, and recent awards for one player
+- `GET /api/players` — full roster (name, class, spec)
 - `POST /api/loot` — insert one record, or `{ "records": [...] }` for bulk.
+  Requires header `X-API-Key: <INGEST_API_KEY>`.
+- `POST /api/players` — upsert one roster entry, or `{ "players": [...] }` for bulk.
   Requires header `X-API-Key: <INGEST_API_KEY>`.
 
 Loot record shape:
@@ -41,9 +45,20 @@ Loot record shape:
   "item_name": "Sulfuras, Hand of Ragnaros",
   "winner": "Thrallpull",
   "response": "MS",
+  "difficulty": "NM",
+  "slot": "Weapon",
   "votes": 5,
   "note": null,
   "raw_source": "<original chat log line, optional>"
+}
+```
+
+Player (roster) record shape:
+```json
+{
+  "name": "Thrallpull",
+  "class": "Shaman",
+  "spec": "Enhancement"
 }
 ```
 
