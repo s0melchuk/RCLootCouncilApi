@@ -5,7 +5,20 @@ interface PagesContext {
   env: Env;
 }
 
-// GET /api/loot?raid=&player=&item=&from=&to=&difficulty=&slot=&limit=&offset=
+// Whitelisted so `sort` can never be interpolated into SQL as arbitrary input.
+const SORTABLE_COLUMNS = new Set([
+  "awarded_at",
+  "raid",
+  "boss",
+  "item_name",
+  "winner",
+  "response",
+  "difficulty",
+  "slot",
+  "votes",
+]);
+
+// GET /api/loot?raid=&player=&item=&from=&to=&difficulty=&slot=&sort=&order=&limit=&offset=
 export async function onRequestGet(ctx: PagesContext): Promise<Response> {
   const { request, env } = ctx;
   const url = new URL(request.url);
@@ -50,16 +63,33 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
     params.push(slot);
   }
 
+  const sort = searchParams.get("sort") ?? "awarded_at";
+  if (!SORTABLE_COLUMNS.has(sort)) {
+    return badRequest(`sort must be one of: ${[...SORTABLE_COLUMNS].join(", ")}`);
+  }
+  const order = (searchParams.get("order") ?? "desc").toLowerCase();
+  if (order !== "asc" && order !== "desc") {
+    return badRequest("order must be 'asc' or 'desc'");
+  }
+
   const limit = Math.min(Number(searchParams.get("limit") ?? 100) || 100, 500);
   const offset = Number(searchParams.get("offset") ?? 0) || 0;
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const countStmt = env.DB.prepare(
+    `SELECT COUNT(*) AS total FROM loot_awards ${where}`
+  ).bind(...params);
+  const countRow = await countStmt.first<{ total: number }>();
+
+  // `id` as a secondary key keeps paging stable when the sort column ties
+  // (e.g. many awards sharing the same awarded_at second).
   const stmt = env.DB.prepare(
-    `SELECT * FROM loot_awards ${where} ORDER BY awarded_at DESC LIMIT ? OFFSET ?`
+    `SELECT * FROM loot_awards ${where} ORDER BY ${sort} ${order}, id ${order} LIMIT ? OFFSET ?`
   ).bind(...params, limit, offset);
 
   const { results } = await stmt.all();
-  return json({ results, limit, offset });
+  return json({ results, total: countRow?.total ?? 0, limit, offset, sort, order });
 }
 
 // POST /api/loot

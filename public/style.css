@@ -51,3 +51,20 @@ th, td {
 tbody tr:hover {
   background: rgba(128, 128, 128, 0.08);
 }
+
+#pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+#pagination button {
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+}
+
+#pagination button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
