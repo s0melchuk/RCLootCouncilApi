@@ -9,16 +9,16 @@ function escapeHtml(s) {
 }
 
 async function loadLoot(params = {}) {
-  tbody.innerHTML = '<tr><td colspan="6">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
   const qs = new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([, v]) => v)));
   const res = await fetch(`/api/loot?${qs}`);
   if (!res.ok) {
-    tbody.innerHTML = `<tr><td colspan="6">Failed to load (${res.status})</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">Failed to load (${res.status})</td></tr>`;
     return;
   }
   const { results } = await res.json();
   if (!results.length) {
-    tbody.innerHTML = '<tr><td colspan="6">No results</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8">No results</td></tr>';
     return;
   }
   tbody.innerHTML = results
@@ -28,8 +28,10 @@ async function loadLoot(params = {}) {
         <td>${escapeHtml(r.raid)}</td>
         <td>${escapeHtml(r.boss)}</td>
         <td>${escapeHtml(r.item_name)}</td>
+        <td>${escapeHtml(r.slot)}</td>
         <td>${escapeHtml(r.winner)}</td>
         <td>${escapeHtml(r.response)}</td>
+        <td>${escapeHtml(r.difficulty)}</td>
       </tr>`
     )
     .join("");

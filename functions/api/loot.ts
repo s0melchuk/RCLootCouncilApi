@@ -5,7 +5,7 @@ interface PagesContext {
   env: Env;
 }
 
-// GET /api/loot?raid=&player=&item=&from=&to=&limit=&offset=
+// GET /api/loot?raid=&player=&item=&from=&to=&difficulty=&slot=&limit=&offset=
 export async function onRequestGet(ctx: PagesContext): Promise<Response> {
   const { request, env } = ctx;
   const url = new URL(request.url);
@@ -38,6 +38,16 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
   if (to) {
     conditions.push("awarded_at <= ?");
     params.push(to);
+  }
+  const difficulty = searchParams.get("difficulty");
+  if (difficulty) {
+    conditions.push("difficulty = ?");
+    params.push(difficulty);
+  }
+  const slot = searchParams.get("slot");
+  if (slot) {
+    conditions.push("slot = ?");
+    params.push(slot);
   }
 
   const limit = Math.min(Number(searchParams.get("limit") ?? 100) || 100, 500);
@@ -86,8 +96,8 @@ export async function onRequestPost(ctx: PagesContext): Promise<Response> {
 
   const stmt = env.DB.prepare(
     `INSERT INTO loot_awards
-       (awarded_at, raid, boss, item_id, item_name, winner, response, votes, note, raw_source)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (awarded_at, raid, boss, item_id, item_name, winner, response, difficulty, slot, votes, note, raw_source)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   );
 
   const batch = validRecords.map((r) =>
@@ -99,6 +109,8 @@ export async function onRequestPost(ctx: PagesContext): Promise<Response> {
       r.item_name,
       r.winner,
       r.response ?? null,
+      r.difficulty ?? null,
+      r.slot ?? null,
       r.votes ?? null,
       r.note ?? null,
       r.raw_source ?? null
