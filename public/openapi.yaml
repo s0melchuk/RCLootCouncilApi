@@ -1,0 +1,333 @@
+openapi: 3.0.3
+info:
+  title: RCLootCouncil API
+  description: >
+    Tracks RCLootCouncil loot results: querying loot awards and a guild
+    roster, and an ingest endpoint for pushing new records.
+  version: "1.0"
+  license:
+    name: GPL-3.0
+    url: https://github.com/s0melchuk/RCLootCouncilApi/blob/main/LICENSE
+externalDocs:
+  description: Project README
+  url: https://github.com/s0melchuk/RCLootCouncilApi#readme
+servers:
+  - url: /
+    description: Current origin (this deployment)
+
+tags:
+  - name: loot
+    description: Loot award history
+  - name: players
+    description: Guild roster
+  - name: stats
+    description: Per-player summaries
+
+paths:
+  /api/loot:
+    get:
+      tags: [loot]
+      summary: List / filter loot awards
+      parameters:
+        - name: raid
+          in: query
+          schema: { type: string }
+          description: Exact match.
+        - name: player
+          in: query
+          schema: { type: string }
+          description: Substring match against `winner` (case-sensitive `LIKE`).
+        - name: item
+          in: query
+          schema: { type: string }
+          description: Substring match against `item_name` (case-sensitive `LIKE`).
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+          description: Only awards with `awarded_at >=` this ISO 8601 timestamp.
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+          description: Only awards with `awarded_at <=` this ISO 8601 timestamp.
+        - name: difficulty
+          in: query
+          schema: { type: string, example: "NM" }
+          description: Exact match, e.g. `NM` or `HC`.
+        - name: slot
+          in: query
+          schema: { type: string, example: "Head" }
+          description: Exact match.
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [awarded_at, raid, boss, item_name, winner, response, difficulty, slot, votes]
+            default: awarded_at
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100, maximum: 500 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Matching awards, newest first by default.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: "#/components/schemas/LootAward" }
+                  total:
+                    type: integer
+                    description: Count matching the filters, ignoring limit/offset.
+                  limit: { type: integer }
+                  offset: { type: integer }
+                  sort: { type: string }
+                  order: { type: string }
+        "400":
+          description: Invalid `sort` or `order` value.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    post:
+      tags: [loot]
+      summary: Insert one or more loot awards
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/LootAwardInput"
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items: { $ref: "#/components/schemas/LootAwardInput" }
+                  required: [records]
+            examples:
+              single:
+                summary: Single record
+                value:
+                  awarded_at: "2026-09-06T21:14:00Z"
+                  raid: "Icecrown Citadel"
+                  boss: "Marrowgar"
+                  item_id: 17182
+                  item_name: "Sulfuras, Hand of Ragnaros"
+                  winner: "Thrallpull"
+                  response: "MainSpec"
+                  difficulty: "NM"
+                  slot: "Weapon"
+                  votes: 5
+              bulk:
+                summary: Bulk import
+                value:
+                  records:
+                    - awarded_at: "2026-09-06T21:14:00Z"
+                      item_name: "Sulfuras, Hand of Ragnaros"
+                      winner: "Thrallpull"
+      responses:
+        "201":
+          description: Inserted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inserted: { type: integer }
+        "400":
+          description: Malformed JSON, or a record missing a required field.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: Missing or wrong `X-API-Key`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/players:
+    get:
+      tags: [players]
+      summary: Full roster
+      responses:
+        "200":
+          description: All known players.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: "#/components/schemas/Player" }
+    post:
+      tags: [players]
+      summary: Upsert one or more roster entries (by name)
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/PlayerInput"
+                - type: object
+                  properties:
+                    players:
+                      type: array
+                      items: { $ref: "#/components/schemas/PlayerInput" }
+                  required: [players]
+            examples:
+              single:
+                summary: Single entry
+                value:
+                  name: "Thrallpull"
+                  class: "Shaman"
+                  spec: "Enhancement"
+              bulk:
+                summary: Bulk upsert
+                value:
+                  players:
+                    - name: "Thrallpull"
+                      class: "Shaman"
+                      spec: "Enhancement"
+      responses:
+        "201":
+          description: Upserted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  upserted: { type: integer }
+        "400":
+          description: Malformed JSON, or an entry missing `name`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: Missing or wrong `X-API-Key`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/stats/{player}:
+    get:
+      tags: [stats]
+      summary: Summary for one player
+      parameters:
+        - name: player
+          in: path
+          required: true
+          schema: { type: string }
+          description: Character name, exact match (URL-encoded if needed).
+      responses:
+        "200":
+          description: >
+            Class/spec (if known on the roster), item count, an MS/OS-by-difficulty
+            breakdown, slots already received, and the 10 most recent awards.
+            A player with no data still returns 200 with zeroed/empty fields.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PlayerStats" }
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: The `INGEST_API_KEY` secret configured on the deployment.
+
+  schemas:
+    LootAward:
+      type: object
+      properties:
+        id: { type: integer }
+        awarded_at: { type: string, format: date-time }
+        raid: { type: string, nullable: true }
+        boss: { type: string, nullable: true }
+        item_id: { type: integer, nullable: true }
+        item_name: { type: string }
+        winner: { type: string }
+        response: { type: string, nullable: true, example: "MainSpec" }
+        difficulty: { type: string, nullable: true, example: "NM" }
+        slot: { type: string, nullable: true, example: "Head" }
+        votes: { type: integer, nullable: true }
+        note: { type: string, nullable: true }
+        raw_source: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+
+    LootAwardInput:
+      type: object
+      required: [awarded_at, item_name, winner]
+      properties:
+        awarded_at: { type: string, format: date-time }
+        raid: { type: string }
+        boss: { type: string }
+        item_id: { type: integer }
+        item_name: { type: string }
+        winner: { type: string }
+        response: { type: string, example: "MainSpec" }
+        difficulty: { type: string, example: "NM" }
+        slot: { type: string, example: "Head" }
+        votes: { type: integer }
+        note: { type: string }
+        raw_source: { type: string }
+
+    Player:
+      type: object
+      properties:
+        name: { type: string }
+        class: { type: string, nullable: true }
+        spec: { type: string, nullable: true }
+        updated_at: { type: string, format: date-time }
+
+    PlayerInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        class: { type: string }
+        spec: { type: string }
+
+    PlayerStats:
+      type: object
+      properties:
+        player: { type: string }
+        class: { type: string, nullable: true }
+        spec: { type: string, nullable: true }
+        item_count: { type: integer }
+        last_award_at: { type: string, format: date-time, nullable: true }
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              response: { type: string, nullable: true }
+              difficulty: { type: string, nullable: true }
+              count: { type: integer }
+        slots_received:
+          type: array
+          items: { type: string }
+        recent:
+          type: array
+          items: { $ref: "#/components/schemas/LootAward" }
+
+    Error:
+      type: object
+      properties:
+        error: { type: string }

@@ -21,6 +21,8 @@ npm run dev
   editing an existing one (D1 migrations are append-only).
 - Keep the frontend dependency-free (plain HTML/CSS/JS) unless there's a
   strong reason to add a build step.
+- If you change a route's params, body, or response shape, update
+  `public/openapi.yaml` to match — nothing enforces this automatically.
 
 ## Reporting bugs / requesting features
 
