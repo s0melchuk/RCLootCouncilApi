@@ -32,7 +32,6 @@
       osHc: countBy(entry.breakdown, "OffSpec", "HC"),
       bis: countBy(entry.breakdown, "BiS", null),
       item_count: entry.item_count,
-      slots_received: entry.slots_received,
       last_award_at: entry.last_award_at,
     };
   }
@@ -58,7 +57,7 @@
     updateSortIndicators();
 
     if (!sorted.length) {
-      tbody.innerHTML = '<tr><td colspan="11">No players yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10">No players yet</td></tr>';
       return;
     }
 
@@ -74,7 +73,6 @@
           <td>${r.osHc}</td>
           <td>${r.bis}</td>
           <td>${r.item_count}</td>
-          <td>${escapeHtml(r.slots_received.join(", "))}</td>
           <td>${escapeHtml(r.last_award_at)}</td>
         </tr>`
       )
@@ -82,10 +80,10 @@
   }
 
   async function load() {
-    tbody.innerHTML = '<tr><td colspan="11">Loading…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10">Loading…</td></tr>';
     const res = await fetch("/api/stats");
     if (!res.ok) {
-      tbody.innerHTML = `<tr><td colspan="11">Failed to load (${res.status})</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="10">Failed to load (${res.status})</td></tr>`;
       return;
     }
     const { results } = await res.json();
