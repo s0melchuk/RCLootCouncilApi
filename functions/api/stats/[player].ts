@@ -43,6 +43,23 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
     .bind(player)
     .all();
 
+  // A redeemed token counts toward its chosen armor slot too, alongside the
+  // "Token" award itself.
+  const tokenSlots = await env.DB.prepare(
+    `SELECT token_slot AS slot, COUNT(*) AS count FROM loot_awards
+     WHERE winner = ? AND token_slot IS NOT NULL GROUP BY token_slot`
+  )
+    .bind(player)
+    .all();
+
+  const slotCounts: Record<string, number> = {};
+  for (const r of [
+    ...(slots.results as { slot: string; count: number }[]),
+    ...(tokenSlots.results as { slot: string; count: number }[]),
+  ]) {
+    slotCounts[r.slot] = (slotCounts[r.slot] ?? 0) + r.count;
+  }
+
   const recent = await env.DB.prepare(
     `SELECT * FROM loot_awards WHERE winner = ? ORDER BY awarded_at DESC LIMIT 10`
   )
@@ -55,9 +72,7 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
     spec: (profile as { spec?: string } | null)?.spec ?? null,
     ...totals,
     breakdown: breakdown.results,
-    slot_counts: Object.fromEntries(
-      (slots.results as { slot: string; count: number }[]).map((r) => [r.slot, r.count])
-    ),
+    slot_counts: slotCounts,
     recent: recent.results,
   });
 }

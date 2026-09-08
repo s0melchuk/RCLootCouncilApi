@@ -395,6 +395,11 @@ components:
         response: { type: string, nullable: true, example: "MainSpec" }
         difficulty: { type: string, nullable: true, example: "NM" }
         slot: { type: string, nullable: true, example: "Head" }
+        token_slot:
+          type: string
+          nullable: true
+          enum: [Chest, Hands, Head, Legs, Shoulder]
+          description: Which armor slot a tier token (slot "Token") was redeemed for, once known.
         votes: { type: integer, nullable: true }
         note: { type: string, nullable: true }
         raw_source: { type: string, nullable: true }
@@ -413,6 +418,9 @@ components:
         response: { type: string, example: "MainSpec" }
         difficulty: { type: string, example: "NM" }
         slot: { type: string, example: "Head" }
+        token_slot:
+          type: string
+          enum: [Chest, Hands, Head, Legs, Shoulder]
         votes: { type: integer }
         note: { type: string }
         raw_source: { type: string }
@@ -431,6 +439,10 @@ components:
         response: { type: string, nullable: true, example: "MainSpec" }
         difficulty: { type: string, nullable: true, example: "NM" }
         slot: { type: string, nullable: true, example: "Head" }
+        token_slot:
+          type: string
+          nullable: true
+          enum: [Chest, Hands, Head, Legs, Shoulder]
         votes: { type: integer, nullable: true }
         note: { type: string, nullable: true }
         raw_source: { type: string, nullable: true }
