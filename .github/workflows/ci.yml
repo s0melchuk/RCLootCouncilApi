@@ -6,9 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# Least-privilege default; jobs that need more (e.g. deploy) override below.
+permissions:
+  contents: read
+
 jobs:
   typecheck:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

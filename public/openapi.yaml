@@ -467,9 +467,14 @@ components:
               response: { type: string, nullable: true }
               difficulty: { type: string, nullable: true }
               count: { type: integer }
-        slots_received:
-          type: array
-          items: { type: string }
+        slot_counts:
+          type: object
+          description: >
+            Slot name -> number of awards with that slot. Counts, not just
+            presence, since tier tokens are cumulative toward a set bonus
+            (a gear slot is otherwise effectively binary: filled or not).
+          additionalProperties: { type: integer }
+          example: { "Head": 1, "Token": 3 }
 
     PlayerStats:
       description: PlayerSummary plus the 10 most recent awards for that one player.

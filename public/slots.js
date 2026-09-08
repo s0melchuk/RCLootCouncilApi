@@ -65,7 +65,7 @@
     }
     const { results } = await res.json();
 
-    const allSlots = sortSlots([...new Set(results.flatMap((r) => r.slots_received))]);
+    const allSlots = sortSlots([...new Set(results.flatMap((r) => Object.keys(r.slot_counts)))]);
     const players = [...results].sort((a, b) => a.player.localeCompare(b.player));
 
     head.innerHTML = `<tr><th>Name</th>${allSlots.map((s) => `<th>${escapeHtml(s)}</th>`).join("")}</tr>`;
@@ -81,8 +81,15 @@
 
     tbody.innerHTML = players
       .map((p) => {
-        const received = new Set(p.slots_received);
-        const cells = allSlots.map((s) => `<td class="slot-cell">${received.has(s) ? "✓" : ""}</td>`).join("");
+        const cells = allSlots
+          .map((s) => {
+            const count = p.slot_counts[s] ?? 0;
+            // Tier tokens are cumulative toward a set bonus, unlike a gear
+            // slot (binary: filled or not), so show the actual count.
+            const display = s.toLowerCase() === "token" ? (count || "") : (count > 0 ? "✓" : "");
+            return `<td class="slot-cell">${display}</td>`;
+          })
+          .join("");
         return `<tr><td>${escapeHtml(p.player)}</td>${cells}</tr>`;
       })
       .join("");

@@ -33,9 +33,12 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
     .bind(player)
     .all();
 
-  // Mirrors the guild's "already received this slot" flags.
+  // Counts, not just presence -- tier tokens are cumulative toward a set
+  // bonus, so "received at least once" alone would lose information a
+  // gear slot (binary: filled or not) doesn't need.
   const slots = await env.DB.prepare(
-    `SELECT DISTINCT slot FROM loot_awards WHERE winner = ? AND slot IS NOT NULL`
+    `SELECT slot, COUNT(*) AS count FROM loot_awards
+     WHERE winner = ? AND slot IS NOT NULL GROUP BY slot`
   )
     .bind(player)
     .all();
@@ -52,7 +55,9 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
     spec: (profile as { spec?: string } | null)?.spec ?? null,
     ...totals,
     breakdown: breakdown.results,
-    slots_received: (slots.results as { slot: string }[]).map((r) => r.slot),
+    slot_counts: Object.fromEntries(
+      (slots.results as { slot: string; count: number }[]).map((r) => [r.slot, r.count])
+    ),
     recent: recent.results,
   });
 }
