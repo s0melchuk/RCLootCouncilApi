@@ -45,8 +45,12 @@ Full request/response shapes: [`/docs.html`](public/docs.html) (Swagger UI) or
 - `GET /api/players` — full roster (name, class, spec)
 - `POST /api/loot` — insert one record, or `{ "records": [...] }` for bulk.
   Requires header `X-API-Key: <INGEST_API_KEY>`.
+- `PATCH /api/loot/:id` — update any subset of fields on one award (`null`
+  clears an optional field). Requires `X-API-Key`.
+- `DELETE /api/loot/:id` — delete one award. Requires `X-API-Key`.
 - `POST /api/players` — upsert one roster entry, or `{ "players": [...] }` for bulk.
   Requires header `X-API-Key: <INGEST_API_KEY>`.
+- `DELETE /api/players/:name` — remove one roster entry. Requires `X-API-Key`.
 
 Loot record shape:
 ```json

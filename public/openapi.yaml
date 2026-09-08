@@ -157,6 +157,82 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
 
+  /api/loot/{id}:
+    patch:
+      tags: [loot]
+      summary: Update one loot award
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        description: >
+          Any subset of loot_awards columns to change. Set an optional field
+          to `null` to clear it; `awarded_at`, `item_name`, and `winner`
+          cannot be null. At least one field is required.
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LootAwardPatch" }
+            example:
+              winner: "Thrallpull"
+              note: null
+      responses:
+        "200":
+          description: The updated award.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LootAward" }
+        "400":
+          description: >
+            Malformed JSON, an empty/unknown-field body, a wrong field type,
+            or a required field set to null.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: Missing or wrong `X-API-Key`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No award with that id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    delete:
+      tags: [loot]
+      summary: Delete one loot award
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: { type: integer }
+        "401":
+          description: Missing or wrong `X-API-Key`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No award with that id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
   /api/players:
     get:
       tags: [players]
@@ -224,6 +300,38 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
 
+  /api/players/{name}:
+    delete:
+      tags: [players]
+      summary: Remove one roster entry
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema: { type: string }
+          description: Character name, exact match (URL-encoded if needed).
+      responses:
+        "200":
+          description: Deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: { type: string }
+        "401":
+          description: Missing or wrong `X-API-Key`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No player with that name.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
   /api/stats/{player}:
     get:
       tags: [stats]
@@ -287,6 +395,24 @@ components:
         votes: { type: integer }
         note: { type: string }
         raw_source: { type: string }
+
+    LootAwardPatch:
+      type: object
+      minProperties: 1
+      description: Same fields as LootAwardInput, all optional; unknown keys are rejected.
+      properties:
+        awarded_at: { type: string, format: date-time }
+        raid: { type: string, nullable: true }
+        boss: { type: string, nullable: true }
+        item_id: { type: integer, nullable: true }
+        item_name: { type: string }
+        winner: { type: string }
+        response: { type: string, nullable: true, example: "MainSpec" }
+        difficulty: { type: string, nullable: true, example: "NM" }
+        slot: { type: string, nullable: true, example: "Head" }
+        votes: { type: integer, nullable: true }
+        note: { type: string, nullable: true }
+        raw_source: { type: string, nullable: true }
 
     Player:
       type: object
