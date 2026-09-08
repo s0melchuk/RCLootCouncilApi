@@ -332,6 +332,27 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
 
+  /api/stats:
+    get:
+      tags: [stats]
+      summary: Summary for every player
+      description: >
+        The same per-player summary as `GET /api/stats/{player}` (minus
+        `recent`), for everyone who has a roster entry and/or at least one
+        award — a player logged in `loot_awards` but not yet on the roster
+        still appears, with `class`/`spec` as `null`.
+      responses:
+        "200":
+          description: One entry per player.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: "#/components/schemas/PlayerSummary" }
+
   /api/stats/{player}:
     get:
       tags: [stats]
@@ -430,7 +451,7 @@ components:
         class: { type: string }
         spec: { type: string }
 
-    PlayerStats:
+    PlayerSummary:
       type: object
       properties:
         player: { type: string }
@@ -449,9 +470,16 @@ components:
         slots_received:
           type: array
           items: { type: string }
-        recent:
-          type: array
-          items: { $ref: "#/components/schemas/LootAward" }
+
+    PlayerStats:
+      description: PlayerSummary plus the 10 most recent awards for that one player.
+      allOf:
+        - $ref: "#/components/schemas/PlayerSummary"
+        - type: object
+          properties:
+            recent:
+              type: array
+              items: { $ref: "#/components/schemas/LootAward" }
 
     Error:
       type: object
