@@ -9,6 +9,9 @@ push data to.
 
 Live at: https://rclootcouncil-api.pages.dev
 
+Interactive API docs (Swagger UI): https://rclootcouncil-api.pages.dev/docs.html
+— raw spec at [`/openapi.yaml`](public/openapi.yaml).
+
 ## Stack
 
 - **Hosting**: Cloudflare Pages (static `public/` + file-based `functions/` API routes)
@@ -19,12 +22,16 @@ Live at: https://rclootcouncil-api.pages.dev
 
 ```
 public/            static frontend (index.html, style.css, app.js)
+public/openapi.yaml  OpenAPI 3.0 spec, served statically and rendered by public/docs.html
 functions/api/     API routes (Pages Functions, file-based routing)
 migrations/        D1 SQL migrations
 wrangler.toml      Pages + D1 binding config
 ```
 
 ## API
+
+Full request/response shapes: [`/docs.html`](public/docs.html) (Swagger UI) or
+[`/openapi.yaml`](public/openapi.yaml) directly. Quick reference:
 
 - `GET /api/loot?raid=&player=&item=&from=&to=&difficulty=&slot=&sort=&order=&limit=&offset=` —
   list/filter awards. `player` and `item` match as a substring (case-sensitive
