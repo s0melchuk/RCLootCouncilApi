@@ -3,11 +3,26 @@
 (() => {
   const tbody = document.getElementById("summary-body");
   const sortButtons = document.querySelectorAll("#summary-table .sort-btn");
+  const playerFilter = document.getElementById("summary-filter-player");
+  const classFilter = document.getElementById("summary-filter-class");
+  const specFilter = document.getElementById("summary-filter-spec");
 
-  // Whole-roster dataset is small (dozens of rows), so sorting/rendering is
-  // done client-side against one fetched snapshot rather than round-tripping
-  // the server per click, unlike the loot log's server-side sort+pagination.
-  const state = { rows: [], sort: "player", order: "asc" };
+  // Whole-roster dataset is small (dozens of rows), so sorting/filtering/
+  // rendering is done client-side against one fetched snapshot rather than
+  // round-tripping the server per click or keystroke, unlike the loot log's
+  // server-side sort+pagination.
+  const state = { rows: [], sort: "player", order: "asc", filters: { player: "", class: "", spec: "" } };
+
+  function matchesFilters(r) {
+    const p = state.filters.player.toLowerCase();
+    const c = state.filters.class.toLowerCase();
+    const s = state.filters.spec.toLowerCase();
+    return (
+      (!p || (r.player ?? "").toLowerCase().includes(p)) &&
+      (!c || (r.class ?? "").toLowerCase().includes(c)) &&
+      (!s || (r.spec ?? "").toLowerCase().includes(s))
+    );
+  }
 
   function escapeHtml(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) => (
@@ -48,7 +63,8 @@
   }
 
   function render() {
-    const sorted = [...state.rows].sort((a, b) => {
+    const filtered = state.rows.filter(matchesFilters);
+    const sorted = filtered.sort((a, b) => {
       const [x, y] = [a[state.sort], b[state.sort]];
       const cmp = typeof x === "string" ? (x ?? "").localeCompare(y ?? "") : (x ?? 0) - (y ?? 0);
       return state.order === "asc" ? cmp : -cmp;
@@ -57,7 +73,7 @@
     updateSortIndicators();
 
     if (!sorted.length) {
-      tbody.innerHTML = '<tr><td colspan="10">No players yet</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="10">${state.rows.length ? "No players match those filters" : "No players yet"}</td></tr>`;
       return;
     }
 
@@ -100,6 +116,17 @@
         state.sort = column;
         state.order = "asc";
       }
+      render();
+    });
+  });
+
+  [
+    [playerFilter, "player"],
+    [classFilter, "class"],
+    [specFilter, "spec"],
+  ].forEach(([input, key]) => {
+    input.addEventListener("input", () => {
+      state.filters[key] = input.value;
       render();
     });
   });
