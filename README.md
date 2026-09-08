@@ -21,7 +21,8 @@ Interactive API docs (Swagger UI): https://rclootcouncil-api.pages.dev/docs.html
 ## Layout
 
 ```
-public/            static frontend (index.html, style.css, app.js)
+public/            static frontend: index.html+app.js (loot log), summary.html+summary.js
+                   (per-player totals, all rendered client-side from GET /api/stats)
 public/openapi.yaml  OpenAPI 3.0 spec, served statically and rendered by public/docs.html
 functions/api/     API routes (Pages Functions, file-based routing)
 migrations/        D1 SQL migrations
@@ -40,6 +41,9 @@ Full request/response shapes: [`/docs.html`](public/docs.html) (Swagger UI) or
   `votes`; `order` is `asc` or `desc` (default `desc`). Response includes
   `total` (count matching the filters, ignoring `limit`/`offset`) for
   building page controls.
+- `GET /api/stats` — the same summary as below, for every player at once
+  (roster entries and/or anyone with an award, so a not-yet-rostered name
+  still shows up). Backs the [`/summary.html`](public/summary.html) page.
 - `GET /api/stats/:player` — class/spec (if known), item count, MS/OS-by-difficulty
   breakdown, slots already received, and recent awards for one player
 - `GET /api/players` — full roster (name, class, spec)
