@@ -34,7 +34,7 @@ interface SlotRow {
 export async function onRequestGet(ctx: PagesContext): Promise<Response> {
   const { env } = ctx;
 
-  const [roster, totals, breakdown, slots] = await Promise.all([
+  const [roster, totals, breakdown, slots, tokenSlots] = await Promise.all([
     env.DB.prepare(`SELECT name, class, spec FROM players`).all<RosterRow>(),
     env.DB.prepare(
       `SELECT winner, COUNT(*) AS item_count, MAX(awarded_at) AS last_award_at
@@ -47,6 +47,13 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
     env.DB.prepare(
       `SELECT winner, slot, COUNT(*) AS count FROM loot_awards
        WHERE slot IS NOT NULL GROUP BY winner, slot`
+    ).all<SlotRow>(),
+    // A redeemed token counts toward its chosen armor slot too, alongside
+    // the "Token" award itself -- a player who traded a token for a Chest
+    // piece does now have a chest item, same as a direct Chest drop would.
+    env.DB.prepare(
+      `SELECT winner, token_slot AS slot, COUNT(*) AS count FROM loot_awards
+       WHERE token_slot IS NOT NULL GROUP BY winner, token_slot`
     ).all<SlotRow>(),
   ]);
 
@@ -62,9 +69,9 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
   // set bonus, so "received at least once" alone would lose information a
   // gear slot (binary: filled or not) doesn't need.
   const slotCountsByName = new Map<string, Record<string, number>>();
-  for (const row of slots.results) {
+  for (const row of [...slots.results, ...tokenSlots.results]) {
     const counts = slotCountsByName.get(row.winner) ?? {};
-    counts[row.slot] = row.count;
+    counts[row.slot] = (counts[row.slot] ?? 0) + row.count;
     slotCountsByName.set(row.winner, counts);
   }
 

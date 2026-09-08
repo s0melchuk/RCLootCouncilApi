@@ -1,4 +1,13 @@
-import { badRequest, Env, isValidLootAward, json, LootAwardInput, unauthorized } from "./_utils";
+import {
+  badRequest,
+  Env,
+  isValidLootAward,
+  json,
+  LootAwardInput,
+  normalizeTokenSlot,
+  TOKEN_SLOTS,
+  unauthorized,
+} from "./_utils";
 
 interface PagesContext {
   request: Request;
@@ -114,20 +123,27 @@ export async function onRequestPost(ctx: PagesContext): Promise<Response> {
     ? (body as { records: unknown[] }).records
     : [body];
 
-  const validRecords: LootAwardInput[] = [];
+  const validRecords: (Omit<LootAwardInput, "token_slot"> & { token_slot: string | null })[] = [];
   for (const r of records) {
     if (!isValidLootAward(r)) {
       return badRequest(
         "each record requires string fields: awarded_at, item_name, winner"
       );
     }
-    validRecords.push(r);
+    let tokenSlot: string | null = null;
+    if (r.token_slot) {
+      tokenSlot = normalizeTokenSlot(r.token_slot);
+      if (!tokenSlot) {
+        return badRequest(`token_slot must be one of: ${TOKEN_SLOTS.join(", ")}`);
+      }
+    }
+    validRecords.push({ ...r, token_slot: tokenSlot });
   }
 
   const stmt = env.DB.prepare(
     `INSERT INTO loot_awards
-       (awarded_at, raid, boss, item_id, item_name, winner, response, difficulty, slot, votes, note, raw_source)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (awarded_at, raid, boss, item_id, item_name, winner, response, difficulty, slot, token_slot, votes, note, raw_source)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   );
 
   const batch = validRecords.map((r) =>
@@ -141,6 +157,7 @@ export async function onRequestPost(ctx: PagesContext): Promise<Response> {
       r.response ?? null,
       r.difficulty ?? null,
       r.slot ?? null,
+      r.token_slot,
       r.votes ?? null,
       r.note ?? null,
       r.raw_source ?? null

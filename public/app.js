@@ -18,6 +18,10 @@
     ));
   }
 
+  function slotDisplay(r) {
+    return r.token_slot ? r.slot + " → " + r.token_slot : r.slot;
+  }
+
   function updateSortIndicators() {
     sortButtons.forEach((btn) => {
       const isActive = btn.dataset.sort === state.sort;
@@ -60,7 +64,7 @@
           <td>${escapeHtml(r.raid)}</td>
           <td>${escapeHtml(r.boss)}</td>
           <td>${escapeHtml(r.item_name)}</td>
-          <td>${escapeHtml(r.slot)}</td>
+          <td>${escapeHtml(slotDisplay(r))}</td>
           <td>${escapeHtml(r.winner)}</td>
           <td>${escapeHtml(r.response)}</td>
           <td>${escapeHtml(r.difficulty)}</td>
