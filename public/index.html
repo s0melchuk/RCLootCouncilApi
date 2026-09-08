@@ -9,49 +9,78 @@
 <body>
   <header>
     <h1>RCLootCouncil Results</h1>
-    <p class="subtitle">
-      Guild loot history · <a href="/summary.html">Player summary</a> ·
-      <a href="/docs.html">API docs</a>
-    </p>
+    <p class="subtitle">Guild loot history · <a href="/docs.html">API docs</a></p>
   </header>
 
   <main>
-    <form id="filters">
-      <input type="text" name="player" placeholder="Player name" />
-      <input type="text" name="raid" placeholder="Raid" />
-      <input type="text" name="item" placeholder="Item name contains…" />
-      <input type="text" name="difficulty" placeholder="NM/HC" />
-      <input type="text" name="slot" placeholder="Slot" />
-      <button type="submit">Filter</button>
-      <button type="button" id="clear">Clear</button>
-    </form>
-
-    <table id="loot-table">
-      <thead>
-        <tr>
-          <th><button type="button" class="sort-btn" data-sort="awarded_at">Date</button></th>
-          <th><button type="button" class="sort-btn" data-sort="raid">Raid</button></th>
-          <th><button type="button" class="sort-btn" data-sort="boss">Boss</button></th>
-          <th><button type="button" class="sort-btn" data-sort="item_name">Item</button></th>
-          <th><button type="button" class="sort-btn" data-sort="slot">Slot</button></th>
-          <th><button type="button" class="sort-btn" data-sort="winner">Winner</button></th>
-          <th><button type="button" class="sort-btn" data-sort="response">Response</button></th>
-          <th><button type="button" class="sort-btn" data-sort="difficulty">Difficulty</button></th>
-          <th><button type="button" class="sort-btn" data-sort="votes">Votes</button></th>
-        </tr>
-      </thead>
-      <tbody id="loot-body">
-        <tr><td colspan="9">Loading…</td></tr>
-      </tbody>
-    </table>
-
-    <div id="pagination">
-      <button type="button" id="prev-page">← Prev</button>
-      <span id="page-status"></span>
-      <button type="button" id="next-page">Next →</button>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="loot">Loot log</button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="summary">Player summary</button>
     </div>
+
+    <section id="loot-panel" role="tabpanel">
+      <form id="filters">
+        <input type="text" name="player" placeholder="Player name" />
+        <input type="text" name="raid" placeholder="Raid" />
+        <input type="text" name="item" placeholder="Item name contains…" />
+        <input type="text" name="difficulty" placeholder="NM/HC" />
+        <input type="text" name="slot" placeholder="Slot" />
+        <button type="submit">Filter</button>
+        <button type="button" id="clear">Clear</button>
+      </form>
+
+      <table id="loot-table">
+        <thead>
+          <tr>
+            <th><button type="button" class="sort-btn" data-sort="awarded_at">Date</button></th>
+            <th><button type="button" class="sort-btn" data-sort="raid">Raid</button></th>
+            <th><button type="button" class="sort-btn" data-sort="boss">Boss</button></th>
+            <th><button type="button" class="sort-btn" data-sort="item_name">Item</button></th>
+            <th><button type="button" class="sort-btn" data-sort="slot">Slot</button></th>
+            <th><button type="button" class="sort-btn" data-sort="winner">Winner</button></th>
+            <th><button type="button" class="sort-btn" data-sort="response">Response</button></th>
+            <th><button type="button" class="sort-btn" data-sort="difficulty">Difficulty</button></th>
+            <th><button type="button" class="sort-btn" data-sort="votes">Votes</button></th>
+          </tr>
+        </thead>
+        <tbody id="loot-body">
+          <tr><td colspan="9">Loading…</td></tr>
+        </tbody>
+      </table>
+
+      <div id="pagination">
+        <button type="button" id="prev-page">← Prev</button>
+        <span id="page-status"></span>
+        <button type="button" id="next-page">Next →</button>
+      </div>
+    </section>
+
+    <section id="summary-panel" role="tabpanel" hidden>
+      <table id="summary-table">
+        <thead>
+          <tr>
+            <th><button type="button" class="sort-btn" data-sort="player">Name</button></th>
+            <th><button type="button" class="sort-btn" data-sort="class">Class</button></th>
+            <th><button type="button" class="sort-btn" data-sort="spec">Spec</button></th>
+            <th><button type="button" class="sort-btn" data-sort="msNm">MS NM</button></th>
+            <th><button type="button" class="sort-btn" data-sort="osNm">OS NM</button></th>
+            <th><button type="button" class="sort-btn" data-sort="msHc">MS HC</button></th>
+            <th><button type="button" class="sort-btn" data-sort="osHc">OS HC</button></th>
+            <th><button type="button" class="sort-btn" data-sort="bis">BiS</button></th>
+            <th><button type="button" class="sort-btn" data-sort="item_count">Total</button></th>
+            <th>Slots received</th>
+            <th><button type="button" class="sort-btn" data-sort="last_award_at">Last award</button></th>
+          </tr>
+        </thead>
+        <tbody id="summary-body">
+          <tr><td colspan="11">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
   </main>
 
   <script src="/app.js"></script>
+  <script src="/summary.js"></script>
+  <script src="/tabs.js"></script>
 </body>
 </html>
