@@ -14,11 +14,50 @@
 
   <main>
     <div class="tabs" role="tablist">
-      <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="loot">Loot log</button>
-      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="summary">Player summary</button>
+      <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="summary">Player summary</button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="slots">Slot coverage</button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="loot">Loot log</button>
     </div>
 
-    <section id="loot-panel" role="tabpanel">
+    <section id="summary-panel" role="tabpanel">
+      <table id="summary-table">
+        <thead>
+          <tr>
+            <th><button type="button" class="sort-btn" data-sort="player">Name</button></th>
+            <th><button type="button" class="sort-btn" data-sort="class">Class</button></th>
+            <th><button type="button" class="sort-btn" data-sort="spec">Spec</button></th>
+            <th><button type="button" class="sort-btn" data-sort="msNm">MS NM</button></th>
+            <th><button type="button" class="sort-btn" data-sort="osNm">OS NM</button></th>
+            <th><button type="button" class="sort-btn" data-sort="msHc">MS HC</button></th>
+            <th><button type="button" class="sort-btn" data-sort="osHc">OS HC</button></th>
+            <th><button type="button" class="sort-btn" data-sort="bis">BiS</button></th>
+            <th><button type="button" class="sort-btn" data-sort="item_count">Total</button></th>
+            <th>Slots received</th>
+            <th><button type="button" class="sort-btn" data-sort="last_award_at">Last award</button></th>
+          </tr>
+        </thead>
+        <tbody id="summary-body">
+          <tr><td colspan="11">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="slots-panel" role="tabpanel" hidden>
+      <p class="subtitle">
+        One column per equipment slot anyone has ever been awarded; a check
+        means that player has received that slot at least once.
+      </p>
+      <div class="table-scroll">
+        <table id="slots-table">
+          <thead id="slots-head"></thead>
+          <tbody id="slots-body">
+            <tr><td>Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="loot-panel" role="tabpanel" hidden>
       <form id="filters">
         <input type="text" name="player" placeholder="Player name" />
         <input type="text" name="raid" placeholder="Raid" />
@@ -54,33 +93,11 @@
         <button type="button" id="next-page">Next →</button>
       </div>
     </section>
-
-    <section id="summary-panel" role="tabpanel" hidden>
-      <table id="summary-table">
-        <thead>
-          <tr>
-            <th><button type="button" class="sort-btn" data-sort="player">Name</button></th>
-            <th><button type="button" class="sort-btn" data-sort="class">Class</button></th>
-            <th><button type="button" class="sort-btn" data-sort="spec">Spec</button></th>
-            <th><button type="button" class="sort-btn" data-sort="msNm">MS NM</button></th>
-            <th><button type="button" class="sort-btn" data-sort="osNm">OS NM</button></th>
-            <th><button type="button" class="sort-btn" data-sort="msHc">MS HC</button></th>
-            <th><button type="button" class="sort-btn" data-sort="osHc">OS HC</button></th>
-            <th><button type="button" class="sort-btn" data-sort="bis">BiS</button></th>
-            <th><button type="button" class="sort-btn" data-sort="item_count">Total</button></th>
-            <th>Slots received</th>
-            <th><button type="button" class="sort-btn" data-sort="last_award_at">Last award</button></th>
-          </tr>
-        </thead>
-        <tbody id="summary-body">
-          <tr><td colspan="11">Loading…</td></tr>
-        </tbody>
-      </table>
-    </section>
   </main>
 
   <script src="/app.js"></script>
   <script src="/summary.js"></script>
+  <script src="/slots.js"></script>
   <script src="/tabs.js"></script>
 </body>
 </html>

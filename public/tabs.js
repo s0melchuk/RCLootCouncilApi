@@ -1,8 +1,9 @@
 (() => {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const panels = {
-    loot: document.getElementById("loot-panel"),
     summary: document.getElementById("summary-panel"),
+    slots: document.getElementById("slots-panel"),
+    loot: document.getElementById("loot-panel"),
   };
 
   tabButtons.forEach((btn) => {

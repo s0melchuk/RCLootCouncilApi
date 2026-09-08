@@ -122,3 +122,13 @@ tbody tr:hover {
   cursor: default;
   opacity: 0.5;
 }
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.slot-cell {
+  text-align: center;
+  color: light-dark(#0a7d32, #4ade80);
+  font-weight: 700;
+}

@@ -21,9 +21,9 @@ Interactive API docs (Swagger UI): https://rclootcouncil-api.pages.dev/docs.html
 ## Layout
 
 ```
-public/            static frontend: index.html has two tabs, each with its own
-                   script -- app.js (loot log) and summary.js (per-player totals,
-                   from GET /api/stats), switched by tabs.js
+public/            static frontend: index.html has three tabs, each with its own
+                   script -- summary.js and slots.js (both from GET /api/stats)
+                   and app.js (the loot log) -- switched by tabs.js
 public/openapi.yaml  OpenAPI 3.0 spec, served statically and rendered by public/docs.html
 functions/api/     API routes (Pages Functions, file-based routing)
 migrations/        D1 SQL migrations
