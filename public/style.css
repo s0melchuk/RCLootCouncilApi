@@ -66,6 +66,21 @@ header h1 {
   cursor: pointer;
 }
 
+/* Same look as #filters, reused on the Player summary / Slot coverage tabs,
+   which filter an already-fetched dataset live as you type -- no submit
+   button needed since there's no server round trip. */
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-bar input {
+  padding: 0.4rem 0.6rem;
+  flex: 1 1 160px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

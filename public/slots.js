@@ -3,6 +3,13 @@
 (() => {
   const head = document.getElementById("slots-head");
   const tbody = document.getElementById("slots-body");
+  const playerFilter = document.getElementById("slots-filter-player");
+
+  // Fetched once and re-rendered locally as the filter changes -- same
+  // reasoning as the Player summary tab: this dataset is small enough to
+  // hold in memory, so there's no need to round-trip the server per keystroke.
+  let allPlayers = [];
+  let allSlots = [];
 
   // The 16 real WotLK (3.3.5) equipment slots, in paperdoll order (Shirt and
   // Tabard omitted -- cosmetic, never loot-councilled), each mapped to every
@@ -57,25 +64,25 @@
     });
   }
 
-  async function load() {
-    const res = await fetch("/api/stats");
-    if (!res.ok) {
-      tbody.innerHTML = `<tr><td>Failed to load (${res.status})</td></tr>`;
-      return;
-    }
-    const { results } = await res.json();
-
-    const allSlots = sortSlots([...new Set(results.flatMap((r) => Object.keys(r.slot_counts)))]);
-    const players = [...results].sort((a, b) => a.player.localeCompare(b.player));
-
+  function render() {
     head.innerHTML = `<tr><th>Name</th>${allSlots.map((s) => `<th>${escapeHtml(s)}</th>`).join("")}</tr>`;
 
-    if (!players.length) {
+    if (!allPlayers.length) {
       tbody.innerHTML = '<tr><td>No players yet</td></tr>';
       return;
     }
     if (!allSlots.length) {
       tbody.innerHTML = '<tr><td>No awards with a recorded slot yet</td></tr>';
+      return;
+    }
+
+    const filter = playerFilter.value.toLowerCase();
+    const players = filter
+      ? allPlayers.filter((p) => p.player.toLowerCase().includes(filter))
+      : allPlayers;
+
+    if (!players.length) {
+      tbody.innerHTML = '<tr><td>No players match that filter</td></tr>';
       return;
     }
 
@@ -94,6 +101,20 @@
       })
       .join("");
   }
+
+  async function load() {
+    const res = await fetch("/api/stats");
+    if (!res.ok) {
+      tbody.innerHTML = `<tr><td>Failed to load (${res.status})</td></tr>`;
+      return;
+    }
+    const { results } = await res.json();
+    allSlots = sortSlots([...new Set(results.flatMap((r) => Object.keys(r.slot_counts)))]);
+    allPlayers = [...results].sort((a, b) => a.player.localeCompare(b.player));
+    render();
+  }
+
+  playerFilter.addEventListener("input", render);
 
   load();
 })();
