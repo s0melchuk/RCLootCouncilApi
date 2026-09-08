@@ -75,11 +75,27 @@ th, td {
   text-align: left;
   padding: 0.5rem 0.6rem;
   border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+  border-right: 1px solid rgba(128, 128, 128, 0.15);
   white-space: nowrap;
 }
 
-th {
+th:last-child, td:last-child {
+  border-right: none;
+}
+
+thead th {
+  background: rgba(128, 128, 128, 0.1);
+  border-bottom: 2px solid rgba(128, 128, 128, 0.4);
+}
+
+/* Headers that wrap a .sort-btn get their padding from the button instead,
+   so the button can fill the full clickable width of the header cell. */
+th:has(.sort-btn) {
   padding: 0;
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(128, 128, 128, 0.05);
 }
 
 .sort-btn {
@@ -125,6 +141,16 @@ tbody tr:hover {
 
 .table-scroll {
   overflow-x: auto;
+}
+
+#slots-table th,
+#slots-table td {
+  text-align: center;
+}
+
+#slots-table th:first-child,
+#slots-table td:first-child {
+  text-align: left;
 }
 
 .slot-cell {

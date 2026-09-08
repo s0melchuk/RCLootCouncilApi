@@ -24,6 +24,7 @@ interface BreakdownRow {
 interface SlotRow {
   winner: string;
   slot: string;
+  count: number;
 }
 
 // GET /api/stats -> the same per-player summary as GET /api/stats/:player,
@@ -44,7 +45,8 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
        FROM loot_awards GROUP BY winner, response, difficulty`
     ).all<BreakdownRow>(),
     env.DB.prepare(
-      `SELECT DISTINCT winner, slot FROM loot_awards WHERE slot IS NOT NULL`
+      `SELECT winner, slot, COUNT(*) AS count FROM loot_awards
+       WHERE slot IS NOT NULL GROUP BY winner, slot`
     ).all<SlotRow>(),
   ]);
 
@@ -56,11 +58,14 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
     list.push({ response: row.response, difficulty: row.difficulty, count: row.count });
     breakdownByName.set(row.winner, list);
   }
-  const slotsByName = new Map<string, string[]>();
+  // Counts, not just presence -- e.g. tier tokens are cumulative toward a
+  // set bonus, so "received at least once" alone would lose information a
+  // gear slot (binary: filled or not) doesn't need.
+  const slotCountsByName = new Map<string, Record<string, number>>();
   for (const row of slots.results) {
-    const list = slotsByName.get(row.winner) ?? [];
-    list.push(row.slot);
-    slotsByName.set(row.winner, list);
+    const counts = slotCountsByName.get(row.winner) ?? {};
+    counts[row.slot] = row.count;
+    slotCountsByName.set(row.winner, counts);
   }
 
   // Union of roster names and anyone who has awards but no roster entry yet
@@ -77,7 +82,7 @@ export async function onRequestGet(ctx: PagesContext): Promise<Response> {
       item_count: total?.item_count ?? 0,
       last_award_at: total?.last_award_at ?? null,
       breakdown: breakdownByName.get(name) ?? [],
-      slots_received: slotsByName.get(name) ?? [],
+      slot_counts: slotCountsByName.get(name) ?? {},
     };
   });
 
