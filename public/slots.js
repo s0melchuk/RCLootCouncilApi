@@ -22,6 +22,7 @@
   // -- are ranked right after. Anything else (typos, future item types) is
   // appended alphabetically rather than dropped, since `slot` is free text
   // on ingest.
+  const RING_NAMES = ["Finger", "Ring", "Ring 1", "Ring 2", "Finger 1", "Finger 2"];
   const SLOT_GROUPS = [
     ["Head"],
     ["Neck"],
@@ -33,7 +34,7 @@
     ["Waist", "Belt"],
     ["Legs"],
     ["Feet", "Boots"],
-    ["Finger", "Ring", "Ring 1", "Ring 2", "Finger 1", "Finger 2"],
+    RING_NAMES,
     ["Trinket", "Trinket 1", "Trinket 2"],
     ["Weapon", "Weapon 1", "Main Hand"],
     ["Off Hand", "Weapon 2", "Weapon 2/Offhand", "Shield", "Held In Off-hand"],
@@ -45,6 +46,14 @@
   ];
   const RANK_BY_SLOT = new Map(
     SLOT_GROUPS.flatMap((names, rank) => names.map((name) => [name.toLowerCase(), rank]))
+  );
+
+  // Everywhere else, one drop fills the slot -- a checkmark says enough.
+  // Rings (two slots, and a player can rack up several over a tier) and
+  // tokens (cumulative toward a set bonus) are the two cases where the
+  // actual count is the more useful signal.
+  const COUNT_DISPLAY_SLOTS = new Set(
+    [...RING_NAMES, "Token"].map((s) => s.toLowerCase())
   );
 
   function escapeHtml(s) {
@@ -91,9 +100,7 @@
         const cells = allSlots
           .map((s) => {
             const count = p.slot_counts[s] ?? 0;
-            // Tier tokens are cumulative toward a set bonus, unlike a gear
-            // slot (binary: filled or not), so show the actual count.
-            const display = s.toLowerCase() === "token" ? (count || "") : (count > 0 ? "✓" : "");
+            const display = COUNT_DISPLAY_SLOTS.has(s.toLowerCase()) ? (count || "") : (count > 0 ? "✓" : "");
             return `<td class="slot-cell">${display}</td>`;
           })
           .join("");
