@@ -3,11 +3,13 @@
   font-family: system-ui, sans-serif;
 }
 
+/* Full width on purpose: the Slot coverage grid gains a column for every
+   slot anyone has been awarded, so a fixed narrow cap forced it to scroll
+   even on wide screens. .table-scroll still catches the genuinely-too-wide
+   case on small screens. */
 body {
   margin: 0;
   padding: 1.5rem;
-  max-width: 960px;
-  margin-inline: auto;
 }
 
 header h1 {

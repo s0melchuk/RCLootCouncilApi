@@ -26,25 +26,27 @@
         <input type="text" id="summary-filter-class" placeholder="Class" />
         <input type="text" id="summary-filter-spec" placeholder="Spec" />
       </div>
-      <table id="summary-table">
-        <thead>
-          <tr>
-            <th><button type="button" class="sort-btn" data-sort="player">Name</button></th>
-            <th><button type="button" class="sort-btn" data-sort="class">Class</button></th>
-            <th><button type="button" class="sort-btn" data-sort="spec">Spec</button></th>
-            <th><button type="button" class="sort-btn" data-sort="msNm">MS NM</button></th>
-            <th><button type="button" class="sort-btn" data-sort="osNm">OS NM</button></th>
-            <th><button type="button" class="sort-btn" data-sort="msHc">MS HC</button></th>
-            <th><button type="button" class="sort-btn" data-sort="osHc">OS HC</button></th>
-            <th><button type="button" class="sort-btn" data-sort="bis">BiS</button></th>
-            <th><button type="button" class="sort-btn" data-sort="item_count">Total</button></th>
-            <th><button type="button" class="sort-btn" data-sort="last_award_at">Last award</button></th>
-          </tr>
-        </thead>
-        <tbody id="summary-body">
-          <tr><td colspan="10">Loading…</td></tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table id="summary-table">
+          <thead>
+            <tr>
+              <th><button type="button" class="sort-btn" data-sort="player">Name</button></th>
+              <th><button type="button" class="sort-btn" data-sort="class">Class</button></th>
+              <th><button type="button" class="sort-btn" data-sort="spec">Spec</button></th>
+              <th><button type="button" class="sort-btn" data-sort="msNm">MS NM</button></th>
+              <th><button type="button" class="sort-btn" data-sort="osNm">OS NM</button></th>
+              <th><button type="button" class="sort-btn" data-sort="msHc">MS HC</button></th>
+              <th><button type="button" class="sort-btn" data-sort="osHc">OS HC</button></th>
+              <th><button type="button" class="sort-btn" data-sort="bis">BiS</button></th>
+              <th><button type="button" class="sort-btn" data-sort="item_count">Total</button></th>
+              <th><button type="button" class="sort-btn" data-sort="last_award_at">Last award</button></th>
+            </tr>
+          </thead>
+          <tbody id="summary-body">
+            <tr><td colspan="10">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section id="slots-panel" role="tabpanel" hidden>
@@ -76,24 +78,26 @@
         <button type="button" id="clear">Clear</button>
       </form>
 
-      <table id="loot-table">
-        <thead>
-          <tr>
-            <th><button type="button" class="sort-btn" data-sort="awarded_at">Date</button></th>
-            <th><button type="button" class="sort-btn" data-sort="raid">Raid</button></th>
-            <th><button type="button" class="sort-btn" data-sort="boss">Boss</button></th>
-            <th><button type="button" class="sort-btn" data-sort="item_name">Item</button></th>
-            <th><button type="button" class="sort-btn" data-sort="slot">Slot</button></th>
-            <th><button type="button" class="sort-btn" data-sort="winner">Winner</button></th>
-            <th><button type="button" class="sort-btn" data-sort="response">Response</button></th>
-            <th><button type="button" class="sort-btn" data-sort="difficulty">Difficulty</button></th>
-            <th><button type="button" class="sort-btn" data-sort="votes">Votes</button></th>
-          </tr>
-        </thead>
-        <tbody id="loot-body">
-          <tr><td colspan="9">Loading…</td></tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table id="loot-table">
+          <thead>
+            <tr>
+              <th><button type="button" class="sort-btn" data-sort="awarded_at">Date</button></th>
+              <th><button type="button" class="sort-btn" data-sort="raid">Raid</button></th>
+              <th><button type="button" class="sort-btn" data-sort="boss">Boss</button></th>
+              <th><button type="button" class="sort-btn" data-sort="item_name">Item</button></th>
+              <th><button type="button" class="sort-btn" data-sort="slot">Slot</button></th>
+              <th><button type="button" class="sort-btn" data-sort="winner">Winner</button></th>
+              <th><button type="button" class="sort-btn" data-sort="response">Response</button></th>
+              <th><button type="button" class="sort-btn" data-sort="difficulty">Difficulty</button></th>
+              <th><button type="button" class="sort-btn" data-sort="votes">Votes</button></th>
+            </tr>
+          </thead>
+          <tbody id="loot-body">
+            <tr><td colspan="9">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <div id="pagination">
         <button type="button" id="prev-page">← Prev</button>
